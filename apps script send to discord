@@ -1,0 +1,53 @@
+function onOpen() {
+  var ui = DocumentApp.getUi();
+  ui.createMenu('SendToDiscord').addItem('Envoyer', 'SendToDiscord').addToUi();
+}
+function SendToDiscord(){
+   var doc = DocumentApp.getActiveDocument();
+  var selection = doc.getSelection();
+  var ui = DocumentApp.getUi();
+
+  var report = "";
+
+  if (!selection) {
+    report += " Please select the text you wish to share before clicking on the button 'SendToDiscord'  ";
+    var result = ui.alert( report,ui.ButtonSet.OK );
+    return;
+  }
+  else {
+    var elements = selection.getSelectedElements();
+      elements.forEach(function(element) {
+        report +=element.getElement().asText().getText() + "\r\n\r\n";});
+        var result = ui.prompt( report, "If this presentation is correct, please fill in your peudo discord, then validate",ui.ButtonSet.OK_CANCEL );
+    }
+  
+    // Process the user's response.
+  var button = result.getSelectedButton();
+  var pseudo = result.getResponseText();
+  if (button == ui.Button.OK) {
+    // User clicked "OK".
+    report="@here dsqdsqdqsdqsdqsdsdqsdqs (Personal message befaor the text + mention here!) \r\n\r\n" + report;
+    report += "annother personal message after the text"
+    postMessageToDiscord(report);
+  }
+
+}
+function postMessageToDiscord(message) {
+  //https://www.labnol.org/code/20563-post-message-to-discord-webhooks
+  
+  var discordUrl = 'https://discord.com/api/webhooks/9018676example2lBl5e';
+  var payload = JSON.stringify({content: message});
+  var params = {
+    headers: {
+      'Content-Type': 'application/json'
+      //'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    method: "POST",
+    payload: payload,
+    muteHttpExceptions: true
+  };
+
+  var response = UrlFetchApp.fetch(discordUrl, params);
+
+  Logger.log(params);
+}
